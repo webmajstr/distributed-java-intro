@@ -5,6 +5,9 @@ public class Brushes {
     private int available = 3;
 
     public synchronized void takeBrush() throws InterruptedException {
+        while (available == 0) {
+            this.wait();
+        }
         if (available == 0) {
             throw new IllegalStateException("There are no more brushes!");
         }
@@ -12,6 +15,7 @@ public class Brushes {
     }
 
     public synchronized void returnBrush() {
+        this.notify();
         available += 1;
     }
 }
