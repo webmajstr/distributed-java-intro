@@ -8,11 +8,14 @@ import java.util.concurrent.TimeUnit;
 
 import static common.CountingRunner.numberOfIterations;
 import static common.CountingRunner.numberOfThreads;
+import exercise1.SynchronizedCounter;
+import exercise2.LockingCounter;
+import exercise3.AtomicCounter;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        Counter counter = null; // TODO: Provide counter implementation
+        Counter counter = new SynchronizedCounter(); // TODO: Provide counter implementation
         execute(counter);
     }
 
