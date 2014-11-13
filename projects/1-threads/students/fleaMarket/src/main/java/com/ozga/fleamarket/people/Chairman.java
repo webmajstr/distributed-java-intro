@@ -18,44 +18,54 @@ import java.util.logging.Logger;
  */
 public class Chairman implements Runnable {
 
-    private ItemsQueue itemsQueue;
-    private MarketManager marketManager;
-    private BlockingQueue<Recipient> recipients;
+    private final ItemsQueue itemsQueue;
+    private final MarketManager marketManager;
+    private final BlockingQueue<Recipient> recipients;
 
     public Chairman(ItemsQueue itemsQueue, MarketManager marketManager) {
         this.itemsQueue = itemsQueue;
         this.marketManager = marketManager;
         this.recipients = new ArrayBlockingQueue<>(10);
     }
+    
+    public String addItem() {
+        return itemsQueue.enqueueItem();
+    }
+    
 
-    public boolean register(Recipient recipient) {
+    public synchronized boolean register(Recipient recipient) {
         try {
-            return this.recipients.add(recipient);
+            System.out.println("Registering " + recipient.getName());
+            return true;
         } catch (IllegalStateException e) {
             return false;
         }
     }
-    
-    private Recipient finishAuction() {
+
+    private Recipient finishAuction(String item) throws InterruptedException {
         int length = this.recipients.size();
-        Random generator = new Random();
-        int winnerId = generator.nextInt(length);
         Recipient winner = null;
-        for (int i = 0; i < length; i++) {
-            if (i == winnerId) {
-                winner = this.recipients.poll();   
-            } else {
-                this.recipients.poll();
+
+        if (length > 0) {
+            Random generator = new Random();
+            int winnerId = generator.nextInt(length);
+
+            for (int i = 0; i < length; i++) {
+                if (i == winnerId) {
+                    winner = this.recipients.poll();
+                } else {
+                    this.recipients.poll();
+                }
             }
+            winner.addItem(item);
+
+            System.out.println("Winner for auction " + item + " is " + winner.getName());
+        } else {
+            System.out.println("There is no winner for " + item);
         }
-        try {
-            winner.addItem(this.itemsQueue.dequeueItem());
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Chairman.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+
         return winner;
-         
+
     }
 
     @Override
@@ -63,14 +73,25 @@ public class Chairman implements Runnable {
         Random generator = new Random();
 
         try {
-            if (itemsQueue.isEmpty()) {
-                Thread.sleep(500 * (generator.nextInt(10) + 1));
-                if (itemsQueue.isEmpty()) {
-                    this.marketManager.endAuction();
+          //  Thread.sleep(10000);
+            while (true) {
+                try {
+                    String item = this.itemsQueue.dequeueItem();
+                    this.finishAuction(item);
+                } catch (IllegalAccessException e) {
+                    Thread.sleep(500 * (generator.nextInt(10) + 1));
+                    if (itemsQueue.isEmpty()) {
+                        System.out.println("No auctions within 5 seconds. Closing the market.");
+                        this.marketManager.endAuction();
+                    }
                 }
+
             }
+
         } catch (InterruptedException ex) {
             Logger.getLogger(Chairman.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            System.out.println("Chairman says good bye.");
         }
 
     }

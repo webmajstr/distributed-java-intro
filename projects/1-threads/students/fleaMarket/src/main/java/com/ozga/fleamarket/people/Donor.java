@@ -17,11 +17,11 @@ import java.util.logging.Logger;
 public class Donor implements Runnable {
 
     private final String name;
-    private final ItemsQueue queue;
+    private final Chairman chairman;
 
-    public Donor(String name, ItemsQueue queue) {
+    public Donor(String name, Chairman chairman) {
         this.name = name;
-        this.queue = queue;
+        this.chairman = chairman;
     }
 
     public String getName() {
@@ -36,11 +36,13 @@ public class Donor implements Runnable {
         try {
             while (true) {
                 Thread.sleep(1000 * (generator.nextInt(26) + 5));
-                while (queue.isFull()) {
-                    Thread.sleep(500 * (generator.nextInt(10) + 1));
+                itemId = null;
+                while (itemId == null) {
+                    itemId = this.chairman.addItem();
+                    if (itemId == null) {
+                        Thread.sleep(500 * (generator.nextInt(10) + 1));
+                    }
                 }
-
-                itemId = queue.enqueueItem();
                 System.out.println("Donor " + this.name + " enqueued item " + itemId);
             }
         } catch (InterruptedException ex) {

@@ -18,15 +18,21 @@ import java.util.logging.Logger;
 public class Recipient implements Runnable{
     private final String name;
     private final List<String> items;
+    private final Chairman chairman;
     //auction
 
-    public Recipient(String name) {
+    public Recipient(String name, Chairman chairman) {
         this.name = name;
         this.items = new ArrayList();
+        this.chairman = chairman;
     }
     
     public void addItem(String item) {
         items.add(item);
+    }
+
+    public String getName() {
+        return name;
     }
     
     

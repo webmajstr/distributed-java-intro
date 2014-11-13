@@ -25,16 +25,22 @@ public class ItemsQueue {
         return queue.isEmpty();
     }
     
-    public String enqueueItem () {
-        String itemName = "Item-" + Integer.toString(counter);
-        queue.offer(itemName);
-        counter++;
+    public String enqueueItem (){
+        String itemName = null;
+        if (!this.isFull()) {
+            itemName = "Item-" + Integer.toString(counter);
+            queue.add(itemName);
+            counter++;
+        }
         
         return itemName;
     }
     
-    public String dequeueItem() throws InterruptedException {
-        return queue.take();
+    public String dequeueItem() throws IllegalAccessException {
+        if (this.isEmpty()) {
+            throw new IllegalAccessException();
+        }
+        return queue.poll();
     }
     
 }
