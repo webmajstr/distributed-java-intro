@@ -20,6 +20,7 @@ public class Recipient implements Runnable{
     private final String name;
     private final List<String> items;
     private final Chairman chairman;
+    private boolean winner;
     private Lock lock = new ReentrantLock();
     private Condition auctionRunning = lock.newCondition();
     //auction
@@ -28,12 +29,14 @@ public class Recipient implements Runnable{
         this.name = name;
         this.items = new ArrayList();
         this.chairman = Chairman.getInstance();
+        this.winner = false;
     }
     
     public void addItem(String item) throws InterruptedException {
-        Random generator = new Random();
-        items.add(item);
-        Thread.sleep(1000 * (generator.nextInt(10) + 6));
+            Random generator = new Random();
+            this.winner = true;
+            items.add(item);
+        
     }
 
     public String getName() {
@@ -60,6 +63,10 @@ public class Recipient implements Runnable{
                 
                 if (this.chairman.register(this)) {
                     auctionRunning.await();
+                }
+                if (this.winner) {
+                    Thread.sleep(1000 * (generator.nextInt(10) + 6));
+                    this.winner = false;
                 }
             }
            

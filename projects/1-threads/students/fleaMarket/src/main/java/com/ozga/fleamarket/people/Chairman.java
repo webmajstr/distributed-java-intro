@@ -64,7 +64,6 @@ public class Chairman implements Runnable {
     private Recipient finishAuction(String item) throws InterruptedException {
         lock.lock();
         try {
-            Thread.sleep(5000);
             isAuctionRunning = true;
             int length = this.recipients.size();
             Recipient winner = null;
@@ -81,6 +80,8 @@ public class Chairman implements Runnable {
                     }
                 }
                 winner.addItem(item);
+                winner.onAuctionFinished();
+                
                 
                 System.out.println("Winner for auction " + item + " is " + winner.getName());
             } else {
@@ -98,10 +99,10 @@ public class Chairman implements Runnable {
         Random generator = new Random();
 
         try {
-            Thread.sleep(5000);
             while (true) {
                 if (!isAuctionRunning) {
                     try {
+                        Thread.sleep(5000);
                         String item = this.itemsQueue.dequeueItem();
                         this.finishAuction(item);
                     } catch (IllegalAccessException ex) {
