@@ -7,6 +7,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.annotation.Transactional;
+
 
 public class OfferService {
 
@@ -28,6 +30,7 @@ public class OfferService {
         this.orderQueue = orderQueue;
     }
 
+    @Transactional
     public void sendOffer(final Double price) {
         this.jmsTemplate.send(offerTopic, new MessageCreator() {
 

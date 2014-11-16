@@ -17,17 +17,15 @@ import com.ozga.fleamarket.queues.ItemsQueue;
  */
 public class Main {
     public static void main(String[] args) {
-        ItemsQueue queue = new ItemsQueue();
-        MarketManager manager = new MarketManager();
-        Chairman chairman = new Chairman(queue, manager);
+    //    ItemsQueue queue = new ItemsQueue();
+        MarketManager manager = MarketManager.getInstance();
+        manager.addRecipient(new Recipient("Recipient 1"));
+        manager.addRecipient(new Recipient("Recipient 2"));
+//        manager.addRecipient(new Recipient("Recipient 3"));
         
-        manager.addRecipient(new Recipient("Recipient 1", chairman));
-        manager.addRecipient(new Recipient("Recipient 2", chairman));
-        manager.addRecipient(new Recipient("Recipient 3", chairman));
-        
-        manager.addDonor(new Donor("donor 1", chairman));
-        manager.addDonor(new Donor("donor 2", chairman));
-        manager.addDonor(new Donor("donor 3", chairman));
+        manager.addDonor(new Donor("donor 1"));
+        manager.addDonor(new Donor("donor 2"));
+//        manager.addDonor(new Donor("donor 3"));
         
         manager.startAuction();
         

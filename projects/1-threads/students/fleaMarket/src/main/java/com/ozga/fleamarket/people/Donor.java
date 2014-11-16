@@ -19,9 +19,9 @@ public class Donor implements Runnable {
     private final String name;
     private final Chairman chairman;
 
-    public Donor(String name, Chairman chairman) {
+    public Donor(String name) {
         this.name = name;
-        this.chairman = chairman;
+        this.chairman = Chairman.getInstance();
     }
 
     public String getName() {
@@ -35,7 +35,7 @@ public class Donor implements Runnable {
         // while (true) {
         try {
             while (true) {
-                Thread.sleep(1000 * (generator.nextInt(26) + 5));
+                
                 itemId = null;
                 while (itemId == null) {
                     itemId = this.chairman.addItem();
@@ -44,13 +44,13 @@ public class Donor implements Runnable {
                     }
                 }
                 System.out.println("Donor " + this.name + " enqueued item " + itemId);
+                Thread.sleep(1000 * (generator.nextInt(26) + 5));
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(Donor.class.getName()).log(Level.SEVERE, null, ex);
+           // Logger.getLogger(Donor.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             System.out.println(this.name + " says good bye.");
         }
-        // }
     }
 
 }

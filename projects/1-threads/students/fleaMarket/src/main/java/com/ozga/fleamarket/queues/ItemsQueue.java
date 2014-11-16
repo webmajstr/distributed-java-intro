@@ -7,6 +7,9 @@ package com.ozga.fleamarket.queues;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -15,7 +18,13 @@ import java.util.concurrent.BlockingQueue;
 public class ItemsQueue {
     
     private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
-    private int counter = 0;
+    private AtomicInteger counter;
+    private Lock lock = new ReentrantLock();
+
+    public ItemsQueue() {
+        counter = new AtomicInteger(0);
+    }
+    
     
     public boolean isFull() {
         return queue.size() == 10;
@@ -26,14 +35,19 @@ public class ItemsQueue {
     }
     
     public String enqueueItem (){
-        String itemName = null;
-        if (!this.isFull()) {
-            itemName = "Item-" + Integer.toString(counter);
-            queue.add(itemName);
-            counter++;
+        lock.lock();
+        try {
+            String itemName = null;
+            if (!this.isFull()) {
+                itemName = "Item-" + Integer.toString(counter.incrementAndGet());
+                queue.add(itemName);
+            }
+            return itemName;
+        } finally {
+            lock.unlock();
         }
         
-        return itemName;
+        
     }
     
     public String dequeueItem() throws IllegalAccessException {
