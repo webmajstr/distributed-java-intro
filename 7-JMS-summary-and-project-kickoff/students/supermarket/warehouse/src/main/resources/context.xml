@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           ">
+
+    <tx:annotation-driven/>
+    <context:component-scan base-package="pl.edu.amu.dji.jms.lab4.warehouse.*"/>
+    
+    <bean id="toUseConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+    </bean>
+    
+    <bean id="connectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory" ref="toUseConnectionFactory"/>
+    </bean>
+    
+    <bean id="transactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+    
+    <bean id="productListConverter" class="pl.edu.amu.dji.jms.lab4.converter.ProductListConverter">
+    </bean>
+    
+    <bean id="productMsgConverter" class="pl.edu.amu.dji.jms.lab4.converter.ProductMsgConverter">
+    </bean>
+    
+    <bean id="warehouseSvc" class="pl.edu.amu.dji.jms.lab4.warehouse.WarehouseSvc">
+    </bean>
+    
+    <bean id="priceChangeTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="priceChangeTopic"/>
+    </bean>
+
+    <bean id="productListTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="productListTopic"/>
+    </bean>
+
+    <bean id="productListJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="defaultDestination" ref="productListTopic"/>
+        <property name="messageConverter" ref="productListConverter"/>
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="sessionTransacted" value="true"/>
+    </bean>
+
+    <bean id="priceChangeJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="defaultDestination" ref="priceChangeTopic"/>
+        <property name="messageConverter" ref="productMsgConverter"/>
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="sessionTransacted" value="true"/>
+    </bean>
+
+
+
+</beans>
